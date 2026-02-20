@@ -44,31 +44,29 @@ function calculateNutritionFromWeight(food, grams) {
 }
 
 // =============================================
-// PERSISTENCE  (backed by server API)
+// PERSISTENCE  (localStorage — static site mode)
 // =============================================
-const loadData = async () => {
+const loadData = () => {
     try {
-        const res = await fetch('/api/data');
-        if (!res.ok) throw new Error(`HTTP ${res.status}`);
-        const data = await res.json();
-        if (data.goals) STATE.userGoals = data.goals;
-        if (data.dietData) STATE.dietData = data.dietData;
-        if (data.myFoods) STATE.myFoods = data.myFoods;
+        const storedGoals = localStorage.getItem('nutriplan_goals');
+        const storedData = localStorage.getItem('nutriplan_data');
+        const storedMyFoods = localStorage.getItem('nutriplan_myfoods');
+        if (storedGoals) STATE.userGoals = JSON.parse(storedGoals);
+        if (storedData) STATE.dietData = JSON.parse(storedData);
+        if (storedMyFoods) STATE.myFoods = JSON.parse(storedMyFoods);
     } catch (e) {
-        console.error('Failed to load data from server:', e);
+        console.error('Failed to load data:', e);
     }
 };
 
 const saveData = () => {
-    fetch('/api/data', {
-        method: 'POST',
-        headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify({
-            goals: STATE.userGoals,
-            dietData: STATE.dietData,
-            myFoods: STATE.myFoods,
-        }),
-    }).catch(e => console.error('Failed to save data to server:', e));
+    try {
+        localStorage.setItem('nutriplan_goals', JSON.stringify(STATE.userGoals));
+        localStorage.setItem('nutriplan_data', JSON.stringify(STATE.dietData));
+        localStorage.setItem('nutriplan_myfoods', JSON.stringify(STATE.myFoods));
+    } catch (e) {
+        console.error('Failed to save data:', e);
+    }
 };
 
 // =============================================
@@ -530,8 +528,8 @@ function showToast(message, type = 'success') {
 // =============================================
 // INITIALIZATION & EVENT LISTENERS
 // =============================================
-document.addEventListener('DOMContentLoaded', async () => {
-    await loadData();   // wait for server data before rendering
+document.addEventListener('DOMContentLoaded', () => {
+    loadData();
     render();
     renderMyFoods();
 
