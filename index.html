@@ -1,0 +1,468 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>NutriPlan - Smart Diet Tracker</title>
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700;800&display=swap"
+        rel="stylesheet">
+    <link rel="stylesheet" href="style.css">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+</head>
+
+<body>
+    <div class="app-container">
+        <!-- Header Section -->
+        <header class="main-header">
+            <div class="logo">
+                <i class="fa-solid fa-leaf"></i>
+                <h1>NutriPlan</h1>
+            </div>
+            <div class="header-actions">
+                <button id="settings-btn" class="icon-btn" title="Settings"><i class="fa-solid fa-gear"></i></button>
+            </div>
+        </header>
+
+        <!-- Tab Navigation -->
+        <div class="tab-bar">
+            <button class="tab-btn active" data-tab="daily">
+                <i class="fa-solid fa-calendar-day"></i> Daily Log
+            </button>
+            <button class="tab-btn" data-tab="myfoods">
+                <i class="fa-solid fa-bowl-food"></i> My Foods
+            </button>
+        </div>
+
+        <!-- ===== DAILY TAB ===== -->
+        <div id="tab-daily" class="tab-content active">
+
+            <!-- Weekly Calendar -->
+            <div class="calendar-container">
+                <div class="calendar-header">
+                    <h2 id="current-month">February 2026</h2>
+                    <div class="calendar-actions">
+                        <button id="prev-week" class="icon-btn"><i class="fa-solid fa-chevron-left"></i></button>
+                        <button id="next-week" class="icon-btn"><i class="fa-solid fa-chevron-right"></i></button>
+                    </div>
+                </div>
+                <div class="weekly-strip" id="weekly-strip"></div>
+            </div>
+
+            <!-- Dashboard Summary -->
+            <section class="dashboard">
+                <!-- Calories Circle -->
+                <div class="card summary-card calorie-card">
+                    <div class="progress-ring-container">
+                        <svg class="progress-ring" width="120" height="120">
+                            <circle class="progress-ring__circle-bg" stroke="rgba(59,130,246,0.1)" stroke-width="8"
+                                fill="transparent" r="52" cx="60" cy="60" />
+                            <circle class="progress-ring__circle" id="cal-progress" stroke="url(#blueGradient)"
+                                stroke-width="8" fill="transparent" r="52" cx="60" cy="60" />
+                            <defs>
+                                <linearGradient id="blueGradient" x1="0%" y1="0%" x2="100%" y2="100%">
+                                    <stop offset="0%" style="stop-color:#3b82f6" />
+                                    <stop offset="100%" style="stop-color:#2563eb" />
+                                </linearGradient>
+                            </defs>
+                        </svg>
+                        <div class="progress-value">
+                            <span id="cal-remaining">2000</span>
+                            <span class="label">left</span>
+                        </div>
+                    </div>
+                    <div class="summary-details">
+                        <h3>Calories</h3>
+                        <p><span id="cal-consumed">0</span> / <span id="cal-goal">2000</span> kcal</p>
+                    </div>
+                </div>
+
+                <!-- Macros -->
+                <div class="macros-grid">
+                    <div class="card macro-card">
+                        <div class="macro-header">
+                            <span class="dot protein-dot"></span> Protein
+                        </div>
+                        <div class="macro-bar-bg">
+                            <div class="macro-bar-fill protein-fill" id="protein-bar" style="width: 0%"></div>
+                        </div>
+                        <p class="macro-text"><span id="protein-consumed">0</span> / <span id="protein-goal">150</span>g
+                        </p>
+                    </div>
+                    <div class="card macro-card">
+                        <div class="macro-header">
+                            <span class="dot carbs-dot"></span> Carbs
+                        </div>
+                        <div class="macro-bar-bg">
+                            <div class="macro-bar-fill carbs-fill" id="carbs-bar" style="width: 0%"></div>
+                        </div>
+                        <p class="macro-text"><span id="carbs-consumed">0</span> / <span id="carbs-goal">200</span>g</p>
+                    </div>
+                    <div class="card macro-card">
+                        <div class="macro-header">
+                            <span class="dot fats-dot"></span> Fats
+                        </div>
+                        <div class="macro-bar-bg">
+                            <div class="macro-bar-fill fats-fill" id="fats-bar" style="width: 0%"></div>
+                        </div>
+                        <p class="macro-text"><span id="fats-consumed">0</span> / <span id="fats-goal">60</span>g</p>
+                    </div>
+                </div>
+            </section>
+
+            <!-- Meal Sections -->
+            <div class="meal-sections">
+
+                <!-- Breakfast -->
+                <section class="meal-section">
+                    <div class="meal-header">
+                        <div class="meal-title">
+                            <i class="fa-regular fa-sun"></i>
+                            <h4>Breakfast</h4>
+                        </div>
+                        <div class="meal-header-right">
+                            <span class="meal-cals" id="breakfast-cals">0 kcal</span>
+                            <button class="add-meal-btn" data-meal="breakfast" title="Add to Breakfast">
+                                <i class="fa-solid fa-plus"></i> Add
+                            </button>
+                        </div>
+                    </div>
+                    <div class="food-list" id="breakfast-list">
+                        <div class="empty-meal-state">No items yet</div>
+                    </div>
+                </section>
+
+                <!-- Lunch -->
+                <section class="meal-section">
+                    <div class="meal-header">
+                        <div class="meal-title">
+                            <i class="fa-solid fa-sun"></i>
+                            <h4>Lunch</h4>
+                        </div>
+                        <div class="meal-header-right">
+                            <span class="meal-cals" id="lunch-cals">0 kcal</span>
+                            <button class="add-meal-btn" data-meal="lunch" title="Add to Lunch">
+                                <i class="fa-solid fa-plus"></i> Add
+                            </button>
+                        </div>
+                    </div>
+                    <div class="food-list" id="lunch-list">
+                        <div class="empty-meal-state">No items yet</div>
+                    </div>
+                </section>
+
+                <!-- Snacks -->
+                <section class="meal-section">
+                    <div class="meal-header">
+                        <div class="meal-title">
+                            <i class="fa-solid fa-cookie-bite"></i>
+                            <h4>Pre workout</h4>
+                        </div>
+                        <div class="meal-header-right">
+                            <span class="meal-cals" id="pre-workout-cals">0 kcal</span>
+                            <button class="add-meal-btn" data-meal="pre-workout" title="Add to Pre workout">
+                                <i class="fa-solid fa-plus"></i> Add
+                            </button>
+                        </div>
+                    </div>
+                    <div class="food-list" id="pre-workout-list">
+                        <div class="empty-meal-state">No items yet</div>
+                    </div>
+                </section>
+
+                <!-- Dinner -->
+                <section class="meal-section">
+                    <div class="meal-header">
+                        <div class="meal-title">
+                            <i class="fa-solid fa-moon"></i>
+                            <h4>Dinner</h4>
+                        </div>
+                        <div class="meal-header-right">
+                            <span class="meal-cals" id="dinner-cals">0 kcal</span>
+                            <button class="add-meal-btn" data-meal="dinner" title="Add to Dinner">
+                                <i class="fa-solid fa-plus"></i> Add
+                            </button>
+                        </div>
+                    </div>
+                    <div class="food-list" id="dinner-list">
+                        <div class="empty-meal-state">No items yet</div>
+                    </div>
+                </section>
+
+            </div>
+
+            <!-- Weekly Actions -->
+            <section class="weekly-actions">
+                <button id="copy-prev-btn" class="secondary-btn">
+                    <i class="fa-solid fa-copy"></i> Copy Previous Day
+                </button>
+            </section>
+        </div>
+
+        <!-- ===== MY FOODS TAB ===== -->
+        <div id="tab-myfoods" class="tab-content">
+            <div class="myfoods-header">
+                <div>
+                    <h2>My Foods Library</h2>
+                    <p class="subtitle">Save your regular foods once. Use them in daily logs.</p>
+                </div>
+                <button id="add-myfood-btn" class="primary-btn">
+                    <i class="fa-solid fa-plus"></i> Add Food
+                </button>
+            </div>
+            <div class="myfoods-search-bar">
+                <i class="fa-solid fa-magnifying-glass"></i>
+                <input type="text" id="myfoods-search" placeholder="Search your foods...">
+            </div>
+            <div id="myfoods-list">
+                <!-- Populated by JS -->
+                <div class="empty-library-state">
+                    <i class="fa-solid fa-bowl-food fa-2x"></i>
+                    <p>No foods saved yet.</p>
+                    <p class="subtitle">Add your regular foods to make daily logging instant!</p>
+                </div>
+            </div>
+        </div>
+
+    </div><!-- .app-container -->
+
+    <!-- ===== MODALS ===== -->
+
+    <!-- Add Food to Daily Log Modal -->
+    <div class="modal-overlay" id="add-food-modal">
+        <div class="modal modal-large">
+            <div class="modal-header">
+                <h3 id="add-food-modal-title">Add to <span id="add-modal-meal-name">Meal</span></h3>
+                <button class="close-modal"><i class="fa-solid fa-xmark"></i></button>
+            </div>
+            <div class="modal-body">
+                <!-- Search from library -->
+                <div class="food-search-container">
+                    <div class="search-input-wrapper">
+                        <i class="fa-solid fa-magnifying-glass"></i>
+                        <input type="text" id="food-search-input" placeholder="Search My Foods...">
+                    </div>
+                    <div id="food-search-results" class="food-search-results">
+                        <!-- Populated by JS -->
+                    </div>
+                </div>
+
+                <!-- Selected food + weight form -->
+                <div id="food-weight-form" class="food-weight-form hidden">
+                    <div class="selected-food-card">
+                        <div class="selected-food-info">
+                            <strong id="selected-food-name">Food Name</strong>
+                            <span class="selected-food-per100">per 100g: <span id="selected-food-cals100">--</span>
+                                kcal</span>
+                        </div>
+                        <button id="clear-selected-food" class="icon-btn-sm"><i class="fa-solid fa-xmark"></i></button>
+                    </div>
+                    <div class="form-row">
+                        <div class="form-group">
+                            <label>Amount (grams)</label>
+                            <input type="number" id="food-weight-grams" placeholder="e.g. 100" min="1">
+                        </div>
+                        <div class="form-group">
+                            <label>Meal Type</label>
+                            <select id="food-meal">
+                                <option value="breakfast">Breakfast</option>
+                                <option value="lunch">Lunch</option>
+                                <option value="pre-workout">Pre workout</option>
+                                <option value="dinner">Dinner</option>
+                            </select>
+                        </div>
+                    </div>
+                    <!-- Auto-calculated Preview -->
+                    <div class="nutrition-preview" id="nutrition-preview">
+                        <div class="preview-item">
+                            <span class="preview-val" id="preview-cals">--</span>
+                            <span class="preview-label">kcal</span>
+                        </div>
+                        <div class="preview-item">
+                            <span class="preview-val" id="preview-protein">--</span>
+                            <span class="preview-label">Protein</span>
+                        </div>
+                        <div class="preview-item">
+                            <span class="preview-val" id="preview-carbs">--</span>
+                            <span class="preview-label">Carbs</span>
+                        </div>
+                        <div class="preview-item">
+                            <span class="preview-val" id="preview-fats">--</span>
+                            <span class="preview-label">Fats</span>
+                        </div>
+                    </div>
+                    <button id="confirm-add-food-btn" class="primary-btn full-width">
+                        <i class="fa-solid fa-plus"></i> Add to Log
+                    </button>
+                </div>
+
+                <!-- Divider -->
+                <div class="modal-divider">
+                    <span>or</span>
+                </div>
+
+                <!-- Quick Add manually without library -->
+                <details class="manual-add-details">
+                    <summary>Add manually (not from library)</summary>
+                    <form id="add-food-form">
+                        <input type="hidden" id="food-meal-manual" value="snacks">
+                        <div class="form-group">
+                            <label>Food Name</label>
+                            <input type="text" id="food-name" placeholder="e.g., Oatmeal with Berries" required>
+                        </div>
+                        <div class="form-row">
+                            <div class="form-group">
+                                <label>Calories</label>
+                                <input type="number" id="food-cals" placeholder="kcal" required>
+                            </div>
+                            <div class="form-group">
+                                <label>Protein (g)</label>
+                                <input type="number" id="food-protein" placeholder="g">
+                            </div>
+                        </div>
+                        <div class="form-row">
+                            <div class="form-group">
+                                <label>Carbs (g)</label>
+                                <input type="number" id="food-carbs" placeholder="g">
+                            </div>
+                            <div class="form-group">
+                                <label>Fats (g)</label>
+                                <input type="number" id="food-fats" placeholder="g">
+                            </div>
+                        </div>
+                        <button type="submit" class="secondary-btn full-width">Add to Log (Manual)</button>
+                    </form>
+                </details>
+
+            </div>
+        </div>
+    </div>
+
+    <!-- Add to My Foods Library Modal -->
+    <div class="modal-overlay" id="add-myfood-modal">
+        <div class="modal">
+            <div class="modal-header">
+                <h3 id="myfood-modal-title">Add to My Foods</h3>
+                <button class="close-modal"><i class="fa-solid fa-xmark"></i></button>
+            </div>
+            <div class="modal-body">
+                <p class="modal-desc">Enter nutrition values per <strong>100g</strong> of the food.</p>
+                <form id="add-myfood-form">
+                    <input type="hidden" id="myfood-edit-id">
+                    <div class="form-group">
+                        <label>Food Name</label>
+                        <input type="text" id="myfood-name" placeholder="e.g., Rolled Oats" required>
+                    </div>
+                    <div class="form-row">
+                        <div class="form-group">
+                            <label>Calories (per 100g)</label>
+                            <input type="number" id="myfood-cals" placeholder="kcal" required>
+                        </div>
+                        <div class="form-group">
+                            <label>Protein (g)</label>
+                            <input type="number" id="myfood-protein" placeholder="g" required>
+                        </div>
+                    </div>
+                    <div class="form-row">
+                        <div class="form-group">
+                            <label>Carbs (g)</label>
+                            <input type="number" id="myfood-carbs" placeholder="g" required>
+                        </div>
+                        <div class="form-group">
+                            <label>Fats (g)</label>
+                            <input type="number" id="myfood-fats" placeholder="g" required>
+                        </div>
+                    </div>
+                    <button type="submit" class="primary-btn full-width">Save to Library</button>
+                </form>
+            </div>
+        </div>
+    </div>
+
+    <!-- Settings Modal -->
+    <div class="modal-overlay" id="settings-modal">
+        <div class="modal">
+            <div class="modal-header">
+                <h3>Your Goals</h3>
+                <button class="close-modal"><i class="fa-solid fa-xmark"></i></button>
+            </div>
+            <div class="modal-body">
+                <form id="settings-form">
+                    <p class="modal-desc">Set your daily targets.</p>
+                    <div class="form-group">
+                        <label>Daily Calories Target</label>
+                        <input type="number" id="goal-cals" required>
+                    </div>
+                    <div class="form-group">
+                        <label>Protein Goal (g)</label>
+                        <input type="number" id="goal-protein" required>
+                    </div>
+                    <div class="form-group">
+                        <label>Carbs Goal (g)</label>
+                        <input type="number" id="goal-carbs" required>
+                    </div>
+                    <div class="form-group">
+                        <label>Fats Goal (g)</label>
+                        <input type="number" id="goal-fats" required>
+                    </div>
+                    <button type="submit" class="primary-btn full-width">Save Goals</button>
+                </form>
+            </div>
+        </div>
+    </div>
+
+    <!-- Edit Food (Daily Log) Modal -->
+    <div class="modal-overlay" id="edit-food-modal">
+        <div class="modal">
+            <div class="modal-header">
+                <h3>Edit Food Entry</h3>
+                <button class="close-modal"><i class="fa-solid fa-xmark"></i></button>
+            </div>
+            <div class="modal-body">
+                <form id="edit-food-form">
+                    <input type="hidden" id="edit-food-id">
+                    <div class="form-group">
+                        <label>Meal Type</label>
+                        <select id="edit-food-meal" required>
+                            <option value="breakfast">Breakfast</option>
+                            <option value="lunch">Lunch</option>
+                            <option value="pre-workout">Pre workout</option>
+                            <option value="dinner">Dinner</option>
+                        </select>
+                    </div>
+                    <div class="form-group">
+                        <label>Food Name</label>
+                        <input type="text" id="edit-food-name" required>
+                    </div>
+                    <div class="form-row">
+                        <div class="form-group">
+                            <label>Calories</label>
+                            <input type="number" id="edit-food-cals" required>
+                        </div>
+                        <div class="form-group">
+                            <label>Protein (g)</label>
+                            <input type="number" id="edit-food-protein">
+                        </div>
+                    </div>
+                    <div class="form-row">
+                        <div class="form-group">
+                            <label>Carbs (g)</label>
+                            <input type="number" id="edit-food-carbs">
+                        </div>
+                        <div class="form-group">
+                            <label>Fats (g)</label>
+                            <input type="number" id="edit-food-fats">
+                        </div>
+                    </div>
+                    <button type="submit" class="primary-btn full-width">Save Changes</button>
+                </form>
+            </div>
+        </div>
+    </div>
+
+    <script src="app.js"></script>
+</body>
+
+</html>

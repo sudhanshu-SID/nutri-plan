@@ -1,0 +1,26 @@
+# Dependencies
+node_modules/
+
+# Database (contains your personal data — don't commit this)
+nutriplan.db
+*.db
+*.db-journal
+*.db-shm
+*.db-wal
+
+# Environment variables (if you add secrets later)
+.env
+.env.local
+.env.production
+
+# Logs
+npm-debug.log*
+*.log
+
+# OS files
+.DS_Store
+Thumbs.db
+
+# Editor folders
+.vscode/
+.idea/
