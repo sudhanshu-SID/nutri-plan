@@ -326,6 +326,10 @@ const renderMyFoods = (filter = '') => {
         const card = document.createElement('div');
         card.className = 'myfood-card animate-in';
         card.style.animationDelay = `${idx * 30}ms`;
+        const isUnit = food.measureType === 'unit';
+        const perLabel = isUnit
+            ? `per ${food.unitLabel || 'unit'}`
+            : 'per 100g';
         card.innerHTML = `
             <div class="myfood-info">
                 <strong>${food.name}</strong>
@@ -337,7 +341,7 @@ const renderMyFoods = (filter = '') => {
                     <span>${food.carbs}g C</span>
                     <span class="mac-sep">·</span>
                     <span>${food.fats}g F</span>
-                    <span class="per-hint">per 100g</span>
+                    <span class="per-hint">${perLabel}</span>
                 </div>
             </div>
             <div class="myfood-actions">
@@ -425,10 +429,21 @@ const renderFoodSearchResults = (query) => {
 
 const selectMyFoodForLog = (food) => {
     STATE.selectedMyFood = food;
+    const isUnit = food.measureType === 'unit';
+    const unitLabel = food.unitLabel || 'unit';
 
-    // Show weight form
     document.getElementById('selected-food-name').textContent = food.name;
     document.getElementById('selected-food-cals100').textContent = food.cals;
+    // Update reference label
+    document.getElementById('selected-food-ref-label').innerHTML =
+        isUnit
+            ? `per ${unitLabel}: <span id="selected-food-cals100">${food.cals}</span> kcal`
+            : `per 100g: <span id="selected-food-cals100">${food.cals}</span> kcal`;
+    // Update amount input label
+    document.getElementById('weight-input-label').textContent =
+        isUnit ? `Quantity (${unitLabel}s)` : 'Amount (grams)';
+    document.getElementById('food-weight-grams').placeholder = isUnit ? 'e.g. 2' : 'e.g. 100';
+
     document.getElementById('food-weight-form').classList.remove('hidden');
     document.getElementById('food-weight-grams').value = '';
 
@@ -438,20 +453,27 @@ const selectMyFoodForLog = (food) => {
     });
 
     setTimeout(() => document.getElementById('food-weight-grams').focus(), 50);
-
-    // Scroll to weight form
     document.getElementById('food-weight-form').scrollIntoView({ behavior: 'smooth', block: 'nearest' });
 };
 
 const updateNutritionPreview = () => {
-    const grams = parseFloat(document.getElementById('food-weight-grams').value);
-    if (!STATE.selectedMyFood || isNaN(grams) || grams <= 0) {
+    const qty = parseFloat(document.getElementById('food-weight-grams').value);
+    if (!STATE.selectedMyFood || isNaN(qty) || qty <= 0) {
         ['preview-cals', 'preview-protein', 'preview-carbs', 'preview-fats'].forEach(id => {
             document.getElementById(id).textContent = '--';
         });
         return;
     }
-    const n = calculateNutritionFromWeight(STATE.selectedMyFood, grams);
+    const food = STATE.selectedMyFood;
+    const isUnit = food.measureType === 'unit';
+    const n = isUnit
+        ? {
+            cals: Math.round(food.cals * qty),
+            p: Math.round(food.protein * qty * 10) / 10,
+            c: Math.round(food.carbs * qty * 10) / 10,
+            f: Math.round(food.fats * qty * 10) / 10,
+        }
+        : calculateNutritionFromWeight(food, qty);
     document.getElementById('preview-cals').textContent = n.cals;
     document.getElementById('preview-protein').textContent = n.p + 'g';
     document.getElementById('preview-carbs').textContent = n.c + 'g';
@@ -466,6 +488,10 @@ const openAddMyFoodModal = (prefillName = '') => {
     document.getElementById('myfood-protein').value = '';
     document.getElementById('myfood-carbs').value = '';
     document.getElementById('myfood-fats').value = '';
+    document.getElementById('myfood-unit-label').value = '';
+    document.getElementById('myfood-measure-type').value = 'weight';
+    document.getElementById('myfood-unit-label-group').classList.add('hidden');
+    document.getElementById('myfood-cals-label').textContent = 'Calories (per 100g)';
     document.getElementById('add-myfood-modal').classList.add('active');
     setTimeout(() => document.getElementById('myfood-name').focus(), 100);
 };
@@ -478,6 +504,13 @@ const openEditMyFoodModal = (food) => {
     document.getElementById('myfood-protein').value = food.protein;
     document.getElementById('myfood-carbs').value = food.carbs;
     document.getElementById('myfood-fats').value = food.fats;
+    const measureType = food.measureType || 'weight';
+    document.getElementById('myfood-measure-type').value = measureType;
+    document.getElementById('myfood-unit-label').value = food.unitLabel || '';
+    const isUnit = measureType === 'unit';
+    document.getElementById('myfood-unit-label-group').classList.toggle('hidden', !isUnit);
+    document.getElementById('myfood-cals-label').textContent =
+        isUnit ? `Calories (per ${food.unitLabel || 'unit'})` : 'Calories (per 100g)';
     document.getElementById('add-myfood-modal').classList.add('active');
 };
 
@@ -488,7 +521,27 @@ const openEditModal = (item) => {
     document.getElementById('edit-food-protein').value = item.p || 0;
     document.getElementById('edit-food-carbs').value = item.c || 0;
     document.getElementById('edit-food-fats').value = item.f || 0;
-    document.getElementById('edit-food-meal').value = item.meal || 'snacks';
+    document.getElementById('edit-food-meal').value = item.meal || 'pre-workout';
+
+    // Show quantity field if food was logged from library
+    const quantityGroup = document.getElementById('edit-quantity-group');
+    const editMyFoodId = document.getElementById('edit-food-myfoodid');
+    const editMeasureType = document.getElementById('edit-food-measuretype');
+    if (item.myFoodId) {
+        const myFood = STATE.myFoods.find(f => f.id === item.myFoodId);
+        editMyFoodId.value = item.myFoodId;
+        const isUnit = myFood && myFood.measureType === 'unit';
+        editMeasureType.value = isUnit ? 'unit' : 'weight';
+        document.getElementById('edit-quantity-label').textContent =
+            isUnit ? `Quantity (${myFood.unitLabel || 'units'})` : 'Amount (grams)';
+        document.getElementById('edit-food-quantity').value = item.grams || item.qty || '';
+        quantityGroup.classList.remove('hidden');
+    } else {
+        editMyFoodId.value = '';
+        editMeasureType.value = '';
+        quantityGroup.classList.add('hidden');
+    }
+
     document.getElementById('edit-food-modal').classList.add('active');
 };
 
@@ -580,22 +633,31 @@ document.addEventListener('DOMContentLoaded', () => {
 
     document.getElementById('confirm-add-food-btn').addEventListener('click', () => {
         if (!STATE.selectedMyFood) return;
-        const grams = parseFloat(document.getElementById('food-weight-grams').value);
-        if (isNaN(grams) || grams <= 0) {
+        const qty = parseFloat(document.getElementById('food-weight-grams').value);
+        if (isNaN(qty) || qty <= 0) {
             showToast('Please enter a valid amount', 'error');
             return;
         }
-        const n = calculateNutritionFromWeight(STATE.selectedMyFood, grams);
+        const food = STATE.selectedMyFood;
+        const isUnit = food.measureType === 'unit';
+        const n = isUnit
+            ? {
+                cals: Math.round(food.cals * qty),
+                p: Math.round(food.protein * qty * 10) / 10,
+                c: Math.round(food.carbs * qty * 10) / 10,
+                f: Math.round(food.fats * qty * 10) / 10,
+            }
+            : calculateNutritionFromWeight(food, qty);
         const mealType = document.getElementById('food-meal').value;
         addFood({
-            name: STATE.selectedMyFood.name,
+            name: food.name,
             meal: mealType,
             cals: n.cals,
             p: n.p,
             c: n.c,
             f: n.f,
-            grams: grams,
-            myFoodId: STATE.selectedMyFood.id,
+            grams: qty,
+            myFoodId: food.id,
         });
         closeAllModals();
     });
@@ -618,15 +680,25 @@ document.addEventListener('DOMContentLoaded', () => {
     // ---- MY FOODS MODAL ----
     document.getElementById('add-myfood-btn').addEventListener('click', () => openAddMyFoodModal());
 
+    // Toggle unit label field when measure type changes
+    document.getElementById('myfood-measure-type').addEventListener('change', (e) => {
+        const isUnit = e.target.value === 'unit';
+        document.getElementById('myfood-unit-label-group').classList.toggle('hidden', !isUnit);
+        document.getElementById('myfood-cals-label').textContent = isUnit ? 'Calories (per unit)' : 'Calories (per 100g)';
+    });
+
     document.getElementById('add-myfood-form').addEventListener('submit', (e) => {
         e.preventDefault();
         const editId = document.getElementById('myfood-edit-id').value;
+        const measureType = document.getElementById('myfood-measure-type').value;
         const foodData = {
             name: document.getElementById('myfood-name').value.trim(),
             cals: Number(document.getElementById('myfood-cals').value),
             protein: Number(document.getElementById('myfood-protein').value || 0),
             carbs: Number(document.getElementById('myfood-carbs').value || 0),
             fats: Number(document.getElementById('myfood-fats').value || 0),
+            measureType: measureType,
+            unitLabel: measureType === 'unit' ? (document.getElementById('myfood-unit-label').value.trim() || 'unit') : '',
         };
         if (editId) {
             updateMyFood(editId, foodData);
@@ -656,14 +728,42 @@ document.addEventListener('DOMContentLoaded', () => {
     document.getElementById('edit-food-form').addEventListener('submit', (e) => {
         e.preventDefault();
         const id = document.getElementById('edit-food-id').value;
-        updateFood(id, {
+        const myFoodId = document.getElementById('edit-food-myfoodid').value;
+        const measureType = document.getElementById('edit-food-measuretype').value;
+        const newQty = parseFloat(document.getElementById('edit-food-quantity').value);
+
+        let updatedFields = {
             name: document.getElementById('edit-food-name').value,
             meal: document.getElementById('edit-food-meal').value,
             cals: Number(document.getElementById('edit-food-cals').value),
             p: Number(document.getElementById('edit-food-protein').value || 0),
             c: Number(document.getElementById('edit-food-carbs').value || 0),
             f: Number(document.getElementById('edit-food-fats').value || 0),
-        });
+        };
+
+        // If food is from library and a valid quantity was entered, recalculate nutrition
+        if (myFoodId && !isNaN(newQty) && newQty > 0) {
+            const myFood = STATE.myFoods.find(f => f.id === myFoodId);
+            if (myFood) {
+                const isUnit = measureType === 'unit';
+                const n = isUnit
+                    ? {
+                        cals: Math.round(myFood.cals * newQty),
+                        p: Math.round(myFood.protein * newQty * 10) / 10,
+                        c: Math.round(myFood.carbs * newQty * 10) / 10,
+                        f: Math.round(myFood.fats * newQty * 10) / 10,
+                    }
+                    : calculateNutritionFromWeight(myFood, newQty);
+                updatedFields.cals = n.cals;
+                updatedFields.p = n.p;
+                updatedFields.c = n.c;
+                updatedFields.f = n.f;
+                updatedFields.grams = newQty;
+                updatedFields.myFoodId = myFoodId;
+            }
+        }
+
+        updateFood(id, updatedFields);
         closeAllModals();
     });
 

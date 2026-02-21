@@ -1151,3 +1151,11 @@ body {
     border-radius: 20px;
     margin-left: 4px;
 }
+
+/* Quantity hint text in edit modal */
+.quantity-hint {
+    display: block;
+    font-size: 0.78rem;
+    color: var(--text-secondary);
+    margin-top: 4px;
+}

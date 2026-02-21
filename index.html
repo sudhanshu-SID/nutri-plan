@@ -254,15 +254,15 @@
                     <div class="selected-food-card">
                         <div class="selected-food-info">
                             <strong id="selected-food-name">Food Name</strong>
-                            <span class="selected-food-per100">per 100g: <span id="selected-food-cals100">--</span>
-                                kcal</span>
+                            <span class="selected-food-per100" id="selected-food-ref-label">per 100g: <span
+                                    id="selected-food-cals100">--</span> kcal</span>
                         </div>
                         <button id="clear-selected-food" class="icon-btn-sm"><i class="fa-solid fa-xmark"></i></button>
                     </div>
                     <div class="form-row">
                         <div class="form-group">
-                            <label>Amount (grams)</label>
-                            <input type="number" id="food-weight-grams" placeholder="e.g. 100" min="1">
+                            <label id="weight-input-label">Amount (grams)</label>
+                            <input type="number" step="any" id="food-weight-grams" placeholder="e.g. 100" min="0.1">
                         </div>
                         <div class="form-group">
                             <label>Meal Type</label>
@@ -348,31 +348,44 @@
                 <button class="close-modal"><i class="fa-solid fa-xmark"></i></button>
             </div>
             <div class="modal-body">
-                <p class="modal-desc">Enter nutrition values per <strong>100g</strong> of the food.</p>
                 <form id="add-myfood-form">
                     <input type="hidden" id="myfood-edit-id">
+                    <!-- Measure Type -->
+                    <div class="form-group">
+                        <label>Measure Type</label>
+                        <select id="myfood-measure-type">
+                            <option value="weight">By Weight (per 100g) — e.g. Rice, Oats</option>
+                            <option value="unit">By Unit (per piece) — e.g. Egg, Banana</option>
+                        </select>
+                    </div>
                     <div class="form-group">
                         <label>Food Name</label>
                         <input type="text" id="myfood-name" placeholder="e.g., Rolled Oats" required>
                     </div>
+                    <!-- Unit label (only shown for 'unit' type) -->
+                    <div class="form-group hidden" id="myfood-unit-label-group">
+                        <label>Unit Label <small style="color:var(--text-secondary)">(optional, e.g. egg,
+                                banana)</small></label>
+                        <input type="text" id="myfood-unit-label" placeholder="e.g. egg">
+                    </div>
                     <div class="form-row">
                         <div class="form-group">
-                            <label>Calories (per 100g)</label>
-                            <input type="number" id="myfood-cals" placeholder="kcal" required>
+                            <label id="myfood-cals-label">Calories (per 100g)</label>
+                            <input type="number" step="any" id="myfood-cals" placeholder="kcal" required>
                         </div>
                         <div class="form-group">
                             <label>Protein (g)</label>
-                            <input type="number" id="myfood-protein" placeholder="g" required>
+                            <input type="number" step="any" id="myfood-protein" placeholder="g" required>
                         </div>
                     </div>
                     <div class="form-row">
                         <div class="form-group">
                             <label>Carbs (g)</label>
-                            <input type="number" id="myfood-carbs" placeholder="g" required>
+                            <input type="number" step="any" id="myfood-carbs" placeholder="g" required>
                         </div>
                         <div class="form-group">
                             <label>Fats (g)</label>
-                            <input type="number" id="myfood-fats" placeholder="g" required>
+                            <input type="number" step="any" id="myfood-fats" placeholder="g" required>
                         </div>
                     </div>
                     <button type="submit" class="primary-btn full-width">Save to Library</button>
@@ -423,6 +436,8 @@
             <div class="modal-body">
                 <form id="edit-food-form">
                     <input type="hidden" id="edit-food-id">
+                    <input type="hidden" id="edit-food-myfoodid">
+                    <input type="hidden" id="edit-food-measuretype">
                     <div class="form-group">
                         <label>Meal Type</label>
                         <select id="edit-food-meal" required>
@@ -436,24 +451,30 @@
                         <label>Food Name</label>
                         <input type="text" id="edit-food-name" required>
                     </div>
+                    <!-- Quantity field: shown only when food was logged from library -->
+                    <div class="form-group hidden" id="edit-quantity-group">
+                        <label id="edit-quantity-label">Amount (grams)</label>
+                        <input type="number" step="any" id="edit-food-quantity" placeholder="e.g. 100" min="0.1">
+                        <small class="quantity-hint">Nutrition below will auto-update when you change this.</small>
+                    </div>
                     <div class="form-row">
                         <div class="form-group">
                             <label>Calories</label>
-                            <input type="number" id="edit-food-cals" required>
+                            <input type="number" step="any" id="edit-food-cals" required>
                         </div>
                         <div class="form-group">
                             <label>Protein (g)</label>
-                            <input type="number" id="edit-food-protein">
+                            <input type="number" step="any" id="edit-food-protein">
                         </div>
                     </div>
                     <div class="form-row">
                         <div class="form-group">
                             <label>Carbs (g)</label>
-                            <input type="number" id="edit-food-carbs">
+                            <input type="number" step="any" id="edit-food-carbs">
                         </div>
                         <div class="form-group">
                             <label>Fats (g)</label>
-                            <input type="number" id="edit-food-fats">
+                            <input type="number" step="any" id="edit-food-fats">
                         </div>
                     </div>
                     <button type="submit" class="primary-btn full-width">Save Changes</button>
