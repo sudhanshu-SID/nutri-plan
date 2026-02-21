@@ -620,6 +620,29 @@ document.addEventListener('DOMContentLoaded', () => {
     });
 
     document.getElementById('food-weight-grams').addEventListener('input', updateNutritionPreview);
+
+    // Live recalculation in Edit modal when quantity changes
+    document.getElementById('edit-food-quantity').addEventListener('input', () => {
+        const myFoodId = document.getElementById('edit-food-myfoodid').value;
+        const measureType = document.getElementById('edit-food-measuretype').value;
+        const qty = parseFloat(document.getElementById('edit-food-quantity').value);
+        if (!myFoodId || isNaN(qty) || qty <= 0) return;
+        const myFood = STATE.myFoods.find(f => f.id === myFoodId);
+        if (!myFood) return;
+        const isUnit = measureType === 'unit';
+        const n = isUnit
+            ? {
+                cals: Math.round(myFood.cals * qty),
+                p: Math.round(myFood.protein * qty * 10) / 10,
+                c: Math.round(myFood.carbs * qty * 10) / 10,
+                f: Math.round(myFood.fats * qty * 10) / 10,
+            }
+            : calculateNutritionFromWeight(myFood, qty);
+        document.getElementById('edit-food-cals').value = n.cals;
+        document.getElementById('edit-food-protein').value = n.p;
+        document.getElementById('edit-food-carbs').value = n.c;
+        document.getElementById('edit-food-fats').value = n.f;
+    });
     document.getElementById('food-meal').addEventListener('change', () => {
         STATE.currentMealContext = document.getElementById('food-meal').value;
     });
